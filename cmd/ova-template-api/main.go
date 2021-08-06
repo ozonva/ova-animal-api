@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os/user"
+)
 
 func main() {
-	fmt.Println("Hello! It's Ozon Go School project!")
+	name := "anonymous"
+	systemUser, err := user.Current()
+	if err == nil {
+		name = systemUser.Username
+	}
+
+	fmt.Printf("Hello %s! It's Ozon Go School project!\n", name)
 }
