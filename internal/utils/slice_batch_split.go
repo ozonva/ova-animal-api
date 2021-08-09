@@ -13,13 +13,8 @@ func BatchSplit(src []int, size uint) ([][]int, error) {
 		return [][]int{}, nil
 	}
 
-	var (
-		result     [][]int
-		sliceCount uint
-	)
-
-	sliceCount = batchSize(uint(len(src)), size)
-	result = make([][]int, sliceCount)
+	sliceCount := batchSize(uint(len(src)), size)
+	result := make([][]int, sliceCount)
 
 	for i := range result {
 		startIndex := i * int(size)
