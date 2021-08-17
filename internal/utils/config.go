@@ -20,12 +20,12 @@ func LoadConfig(fileName string) {
 	if err != nil {
 		log.Panicf("can't open file %s: %v", fileName, err)
 	}
-	defer func(file *os.File) {
+	defer func() {
 		err := file.Close()
 		if err != nil {
 			log.Printf("Can't close file %s\n", fileName)
 		}
-	}(file)
+	}()
 
 	contents, err := io.ReadAll(file)
 	if err != nil {
