@@ -5,6 +5,7 @@ import (
 	"log"
 )
 
+//go:generate enumer -type=AnimalType -json
 type AnimalType uint8
 
 const (
@@ -13,21 +14,6 @@ const (
 	FISH
 	MOUSE
 )
-
-func (this AnimalType) String() string {
-	switch this {
-	case CAT:
-		return "CAT"
-	case DOG:
-		return "DOG"
-	case FISH:
-		return "FISH"
-	case MOUSE:
-		return "MOUSE"
-	default:
-		panic(fmt.Sprintf("Unsupported animal type %d", this))
-	}
-}
 
 type Animal struct {
 	Id     uint64
