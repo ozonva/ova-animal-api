@@ -9,6 +9,7 @@ fetch_dependencies:
 generate: fetch_dependencies
 	go get github.com/alvaroloes/enumer
 	go install github.com/alvaroloes/enumer
+	go install github.com/golang/mock/mockgen@v1.6.0
 	go generate ./...
 
 test: fetch_dependencies generate
