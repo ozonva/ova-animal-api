@@ -5,6 +5,7 @@ import (
 	"ova-animal-api/internal/repo/animal"
 )
 
+//go:generate mockgen -source=animal_flusher.go -destination=animal_flusher_mock.go -package=animal
 type Flusher interface {
 	Flush(entities []domain.Animal) []domain.Animal
 }
