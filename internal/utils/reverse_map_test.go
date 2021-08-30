@@ -35,5 +35,8 @@ func TestDuplicates(t *testing.T) {
 	})
 
 	assert.NotNil(t, err)
-	assert.Equal(t, "key a already present in target map with value 1", err.Error())
+	assert.True(t,
+		err.Error() == "key a already present in target map with value 1" ||
+			err.Error() == "key a already present in target map with value 3",
+	)
 }
