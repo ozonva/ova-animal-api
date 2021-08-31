@@ -18,7 +18,6 @@ type Saver interface {
 
 func New(capacity uint, flusher animal.Flusher) Saver {
 	writeChan := make(chan domain.Animal, 0)
-	closeChan := make(chan bool, 0)
 
 	saver := animalSaver{
 		flusher:   flusher,
@@ -27,7 +26,7 @@ func New(capacity uint, flusher animal.Flusher) Saver {
 		ticker:    time.NewTicker(time.Second),
 		mutex:     &(sync.Mutex{}),
 		writeChan: &writeChan,
-		closeChan: &closeChan,
+		waitGroup: &(sync.WaitGroup{}),
 	}
 	saver.init()
 	return &saver
@@ -43,28 +42,32 @@ type animalSaver struct {
 	mutex  *sync.Mutex
 
 	writeChan *chan domain.Animal
-	closeChan *chan bool
+	waitGroup *sync.WaitGroup
 }
 
 func (this *animalSaver) init() {
+	this.waitGroup.Add(1)
+
 	go func() {
 		for {
 			select {
-			case <-this.ticker.C:
-				log.Println("Tick!")
-				this.flush()
-			case <-*this.closeChan:
-				log.Println("Flush and exit")
-				this.flush()
-				log.Println("Flushing loop completed")
-				return
+			case _, ok := <-this.ticker.C:
+				if ok {
+					log.Println("Tick!")
+					this.flush()
+				}
 			case e, ok := <-*this.writeChan:
 				if ok {
 					this.append(e)
+				} else {
+					log.Println("Flush and exit")
+					this.flush()
+					log.Println("Flushing loop completed")
+					this.waitGroup.Done()
+					return
 				}
 			}
 		}
-
 	}()
 }
 
@@ -75,11 +78,10 @@ func (this *animalSaver) Save(entity domain.Animal) {
 
 func (this *animalSaver) Close() error {
 	log.Println("Closing")
-	close(*this.writeChan)
 	this.ticker.Stop()
-	*this.closeChan <- true
-	close(*this.closeChan)
+	close(*this.writeChan)
 	log.Println("Closed")
+	this.waitGroup.Wait()
 	return nil
 }
 

@@ -46,7 +46,8 @@ var _ = Describe("Animal", func() {
 			log.Println("Test flush by closing")
 			flusher.
 				EXPECT().
-				Flush([]domain.Animal{animal1})
+				Flush(gomock.Eq([]domain.Animal{animal1})).
+				Return([]domain.Animal{})
 
 			// Этот тест может быть хрупким, но мы понадеемся, что время
 			// от вызова BeforeEach до Close меньше 1 секунды
@@ -59,7 +60,8 @@ var _ = Describe("Animal", func() {
 
 			flusher.
 				EXPECT().
-				Flush([]domain.Animal{animal1})
+				Flush(gomock.Eq([]domain.Animal{animal1})).
+				Return([]domain.Animal{})
 
 			saver.Save(animal1)
 			time.Sleep(2 * time.Second)
