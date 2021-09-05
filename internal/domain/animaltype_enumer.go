@@ -8,9 +8,9 @@ import (
 	"fmt"
 )
 
-const _AnimalTypeName = "CATDOGFISHMOUSE"
+const _AnimalTypeName = "UNKNOWNCATDOGFISHMOUSE"
 
-var _AnimalTypeIndex = [...]uint8{0, 3, 6, 10, 15}
+var _AnimalTypeIndex = [...]uint8{0, 7, 10, 13, 17, 22}
 
 func (i AnimalType) String() string {
 	if i >= AnimalType(len(_AnimalTypeIndex)-1) {
@@ -19,13 +19,14 @@ func (i AnimalType) String() string {
 	return _AnimalTypeName[_AnimalTypeIndex[i]:_AnimalTypeIndex[i+1]]
 }
 
-var _AnimalTypeValues = []AnimalType{0, 1, 2, 3}
+var _AnimalTypeValues = []AnimalType{0, 1, 2, 3, 4}
 
 var _AnimalTypeNameToValueMap = map[string]AnimalType{
-	_AnimalTypeName[0:3]:   0,
-	_AnimalTypeName[3:6]:   1,
-	_AnimalTypeName[6:10]:  2,
-	_AnimalTypeName[10:15]: 3,
+	_AnimalTypeName[0:7]:   0,
+	_AnimalTypeName[7:10]:  1,
+	_AnimalTypeName[10:13]: 2,
+	_AnimalTypeName[13:17]: 3,
+	_AnimalTypeName[17:22]: 4,
 }
 
 // AnimalTypeString retrieves an enum value from the enum constants string name.
