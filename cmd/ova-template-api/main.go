@@ -1,16 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"os/user"
+	my_api "ova-animal-api/internal/api"
+)
+
+const (
+	grpcAddr = ":8080"
+	httpAddr = ":8081"
+	network  = "tcp"
 )
 
 func main() {
-	name := "anonymous"
-	systemUser, err := user.Current()
-	if err == nil {
-		name = systemUser.Username
-	}
-
-	fmt.Printf("Hello %s! It's Ozon Go School project!\n", name)
+	server := my_api.NewServer(
+		my_api.Settings{grpcAddr, httpAddr, network},
+	)
+	server.Run()
 }

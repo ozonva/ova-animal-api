@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+option go_package = 'github.com/ozonva/ova-animal-api/api';
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+
+package ova.animal.api;
+
+service AnimalApi {
+  rpc CreateEntity(Animal) returns (google.protobuf.Empty) {
+    option(google.api.http) = {
+      post: "/v1/add"
+      body: "*"
+    };
+  };
+  rpc DescribeEntity(IdRequest) returns(Animal) {
+    option(google.api.http) = {
+      get: "/v1/{id}"
+    };
+  };
+  rpc ListEntities(google.protobuf.Empty) returns (AnimalListResponse) {
+    option(google.api.http) = {
+      get: "/v1"
+    };
+  };
+  rpc RemoveEntity(IdRequest) returns (google.protobuf.Empty) {
+    option(google.api.http) = {
+      delete: "/v1/{id}"
+    };
+  };
+}
+
+message IdRequest {
+  uint64 id = 1 [json_name = "id"];
+}
+
+message Animal {
+  uint64 id = 1 [json_name = "id"];
+  uint64 user_id = 2 [json_name = "user_id"];
+  string name = 3 [json_name = "name"];
+  enum Type {
+    AnimalType_UNKNOWN = 0;
+    AnimalType_CAT = 1;
+    AnimalType_DOG = 2;
+    AnimalType_FISH = 3;
+    AnimalType_MOUSE = 4;
+  }
+  Type type = 4 [json_name = "type"];
+}
+
+message AnimalListResponse {
+  repeated Animal animal = 1 [json_name = "animals"];
+}

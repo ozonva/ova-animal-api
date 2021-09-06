@@ -9,7 +9,8 @@ import (
 type AnimalType uint8
 
 const (
-	CAT AnimalType = iota
+	UNKNOWN AnimalType = iota
+	CAT
 	DOG
 	FISH
 	MOUSE
