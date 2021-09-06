@@ -50,5 +50,5 @@ message Animal {
 }
 
 message AnimalListResponse {
-  repeated Animal animal = 1 [json_name = "animals"];
+  repeated Animal animal = 1 [json_name = "animal"];
 }
