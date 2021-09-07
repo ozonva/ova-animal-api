@@ -2,6 +2,7 @@ package main
 
 import (
 	my_api "ova-animal-api/internal/api"
+	"ova-animal-api/internal/config"
 )
 
 const (
@@ -12,7 +13,18 @@ const (
 
 func main() {
 	server := my_api.NewServer(
-		my_api.Settings{grpcAddr, httpAddr, network},
+		config.Settings{
+			GrpcAddr: grpcAddr,
+			HttpAddr: httpAddr,
+			Network:  network,
+			Db: config.Db{
+				Login:    "ova-animal-api",
+				Password: "ova-animal-api",
+				Name:     "ova-animal-api",
+				Host:     "localhost",
+				Port:     55432,
+			},
+		},
 	)
 	server.Run()
 }

@@ -48,6 +48,20 @@ func (mr *MockRepoMockRecorder) AddEntities(entities interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddEntities", reflect.TypeOf((*MockRepo)(nil).AddEntities), entities)
 }
 
+// Delete mocks base method.
+func (m *MockRepo) Delete(id uint64) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockRepoMockRecorder) Delete(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepo)(nil).Delete), id)
+}
+
 // DescribeEntity mocks base method.
 func (m *MockRepo) DescribeEntity(entityId uint64) (*domain.Animal, error) {
 	m.ctrl.T.Helper()

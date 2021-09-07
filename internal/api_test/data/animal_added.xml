@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<dataset>
+    <animal id="100" user_id="1" name="Tom" type="CAT"/>
+    <animal id="200" user_id="1" name="Jerry" type="MOUSE"/>
+    <animal id="1" user_id="3" name="Spike" type="DOG"/>
+</dataset>

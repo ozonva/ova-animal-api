@@ -4,7 +4,6 @@ package api_test_test
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/go-resty/resty/v2"
 	"github.com/golang/protobuf/ptypes/empty"
 	. "github.com/onsi/ginkgo"
@@ -17,19 +16,21 @@ import (
 )
 
 const grpcAddr = ":8888"
-const httpPort = ":8889"
+const httpAddr = ":8889"
 
 var _ = Describe("ApiTest", func() {
 	var (
-		settings api.Settings
-		server   *api.Server
+		server *api.Server
 	)
 
 	BeforeEach(func() {
-		settings = api.Settings{grpcAddr, httpPort, "tcp"}
 		server = api.NewServer(settings)
 
 		go server.Run()
+
+		daoTester.ClearTable("animal")
+		// Используется godbt - клон dbunit на go
+		daoTester.ApplyDbunitData("data/animal.xml")
 
 		// Эту проблему не удалось решить. Надо как-то дождаться запуска сервера, но как, пока не понятно
 		time.Sleep(300 * time.Millisecond)
@@ -43,7 +44,7 @@ var _ = Describe("ApiTest", func() {
 	When("REST Json http", func() {
 		var (
 			httpClient *resty.Client
-			urlBase    = "http://localhost" + httpPort + "/v1"
+			urlBase    = "http://localhost" + httpAddr + "/v1"
 		)
 		BeforeEach(func() {
 			httpClient = resty.New()
@@ -51,20 +52,14 @@ var _ = Describe("ApiTest", func() {
 
 		When("list", func() {
 			It("empty", func() {
-				resp, err := httpClient.R().Get(urlBase)
+				_, err := httpClient.R().Get(urlBase)
 				Expect(err).To(BeNil())
-
-				respObj := grpc_api.AnimalListResponse{}
-				err = json.Unmarshal(resp.Body(), &respObj)
-				Expect(err).To(BeNil())
-
-				Expect(respObj.Animal).To(BeEmpty())
 			})
 		})
 
 		When("get", func() {
 			It("empty", func() {
-				_, err := httpClient.R().Get(urlBase + "/1")
+				_, err := httpClient.R().Get(urlBase + "/100")
 				Expect(err).To(BeNil())
 				//
 				//respObj := grpc_api.Animal{}
@@ -123,29 +118,44 @@ var _ = Describe("ApiTest", func() {
 			It("empty", func() {
 				entities, err := grpcClient.ListEntities(ctx, &empty.Empty{})
 				Expect(err).To(BeNil())
-				Expect(entities.Animal).To(BeEmpty())
+				Expect(len(entities.Animal)).To(Equal(2))
+				Expect(entities.Animal[0].Id).To(Equal(uint64(100)))
+				Expect(entities.Animal[0].UserId).To(Equal(uint64(1)))
+				Expect(entities.Animal[0].Name).To(Equal("Tom"))
+				Expect(entities.Animal[0].Type).To(Equal(grpc_api.Animal_AnimalType_CAT))
+				Expect(entities.Animal[1].Id).To(Equal(uint64(200)))
+				Expect(entities.Animal[1].UserId).To(Equal(uint64(1)))
+				Expect(entities.Animal[1].Name).To(Equal("Jerry"))
+				Expect(entities.Animal[1].Type).To(Equal(grpc_api.Animal_AnimalType_MOUSE))
 			})
 		})
 		When("get", func() {
 			It("empty", func() {
-				animal, err := grpcClient.DescribeEntity(ctx, &grpc_api.IdRequest{Id: 1})
+				animal, err := grpcClient.DescribeEntity(ctx, &grpc_api.IdRequest{Id: 100})
 				Expect(err).To(BeNil())
-				Expect(animal.Id).To(Equal(uint64(0)))
-				Expect(animal.UserId).To(Equal(uint64(0)))
-				Expect(animal.Name).To(Equal(""))
-				Expect(animal.Type).To(Equal(grpc_api.Animal_AnimalType_UNKNOWN))
+				Expect(animal.Id).To(Equal(uint64(100)))
+				Expect(animal.UserId).To(Equal(uint64(1)))
+				Expect(animal.Name).To(Equal("Tom"))
+				Expect(animal.Type).To(Equal(grpc_api.Animal_AnimalType_CAT))
 			})
 		})
 		When("delete", func() {
 			It("empty", func() {
-				_, err := grpcClient.RemoveEntity(ctx, &grpc_api.IdRequest{Id: 1})
+				_, err := grpcClient.RemoveEntity(ctx, &grpc_api.IdRequest{Id: 100})
 				Expect(err).To(BeNil())
+				daoTester.TestDatabase("animal", "data/animal_deleted.xml")
 			})
 		})
 		When("create", func() {
 			It("empty", func() {
-				_, err := grpcClient.CreateEntity(ctx, &grpc_api.Animal{})
+				_, err := grpcClient.CreateEntity(ctx, &grpc_api.Animal{
+					Id:     300,
+					Name:   "Spike",
+					UserId: 3,
+					Type:   grpc_api.Animal_AnimalType_DOG,
+				})
 				Expect(err).To(BeNil())
+				daoTester.TestDatabase("animal", "data/animal_added.xml")
 			})
 		})
 	})

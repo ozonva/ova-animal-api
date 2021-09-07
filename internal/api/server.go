@@ -7,24 +7,33 @@ import (
 	"google.golang.org/grpc"
 	"net"
 	"net/http"
+	"ova-animal-api/internal/config"
+	"ova-animal-api/internal/repo/animal"
 	"ova-animal-api/pkg/ova-animal-api/github.com/ozonva/ova-animal-api/api"
 	"sync"
 	"time"
 )
 
-func NewServer(settings Settings) *Server {
+func NewServer(settings config.Settings) *Server {
+	repo, err := animal.New(settings.Db)
+	if err != nil {
+		log.Panic().Err(err)
+	}
+
 	server := &Server{
 		settings: settings,
 		wg:       &(sync.WaitGroup{}),
+		repo:     repo,
 	}
 	return server
 }
 
 type Server struct {
-	settings   Settings
+	settings   config.Settings
 	wg         *sync.WaitGroup
 	grpcServer *grpc.Server
 	httpServer *http.Server
+	repo       animal.Repo
 }
 
 func (this *Server) runHttpRestJson() {
@@ -69,7 +78,7 @@ func (this *Server) runGrpc() {
 	}
 
 	this.grpcServer = grpc.NewServer()
-	api.RegisterAnimalApiServer(this.grpcServer, AnimalApiServerImpl{})
+	api.RegisterAnimalApiServer(this.grpcServer, NewHandler(this.repo))
 
 	if err := this.grpcServer.Serve(listen); err != nil {
 		log.Fatal().Msgf("failed to serve: %v", err)

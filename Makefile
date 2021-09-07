@@ -23,6 +23,11 @@ export GO111MODULE=on
 	go install github.com/envoyproxy/protoc-gen-validate@$(PGV_VERSION)
 
 
+DB_LOGIN=ova-animal-api
+DB_PASS=ova-animal-api
+DB_NAME=ova-animal-api
+DB_PORT=55432
+
 clean:
 	rm -rf $(DIST_DIR)
 
@@ -47,14 +52,32 @@ generate_proto: .vendor-proto
 test: fetch_dependencies generate_proto generate
 	go test ./...
 
-integration_test: fetch_dependencies generate_proto generate
+pull_images:
+	docker pull postgres
+
+integration_test: fetch_dependencies generate_proto generate pull_images
 	go test -tags=integration ./...
 
 build: clean fetch_dependencies generate_proto generate
 	mkdir $(DIST_DIR)
 	go build -o $(DIST_DIR)/ ./...
 
-run:
+goose_up:
+	cd migrations &&\
+	goose postgres "user=$(DB_LOGIN) password=$(DB_PASS) dbname=$(DB_NAME) sslmode=disable port=$(DB_PORT)" up
+
+goose_down_1:
+	cd migrations &&\
+	goose postgres "user=$(DB_LOGIN) password=$(DB_PASS) dbname=$(DB_NAME) sslmode=disable port=$(DB_PORT)" down 1
+
+goose_status:
+	cd migrations &&\
+	goose postgres "user=$(DB_LOGIN) password=$(DB_PASS) dbname=$(DB_NAME) sslmode=disable port=$(DB_PORT)" status
+
+db_start:
+	docker-compose up -d
+
+run: db_start
 	go run ./...
 
 all: test build

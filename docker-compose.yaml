@@ -1,0 +1,10 @@
+version: '3'
+services:
+  postgres:
+    image: postgres
+    ports:
+      - '55432:5432'
+    environment:
+      POSTGRES_DB: ova-animal-api
+      POSTGRES_USER: ova-animal-api
+      POSTGRES_PASSWORD: ova-animal-api
